@@ -1,0 +1,333 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+class Appointment {
+    private String patientName;
+    private String professionalName;
+    private String professionalType;
+    private LocalDateTime appointmentTime;
+    private String reason;
+    private int duration;
+
+    public Appointment(String patientName, String professionalName, String professionalType,
+                       LocalDateTime appointmentTime, String reason, int duration) {
+        this.patientName = patientName;
+        this.professionalName = professionalName;
+        this.professionalType = professionalType;
+        this.appointmentTime = appointmentTime;
+        this.reason = reason;
+        this.duration = duration;
+    }
+
+    public String[] toTableRow() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a");
+        return new String[]{
+                patientName,
+                professionalName,
+                professionalType,
+                appointmentTime.format(formatter),
+                duration + " minutes",
+                reason
+        };
+    }
+}
+
+public class AppointmentBookingGUI {
+    private JFrame mainFrame;
+    private List<Appointment> appointments;
+    private DefaultTableModel tableModel;
+
+    private JTextField patientNameField;
+    private JTextField professionalNameField;
+    private JComboBox<String> professionalTypeCombo;
+    private JTextField dateField;
+    private JTextField timeField;
+    private JTextField reasonField;
+    private JSpinner durationSpinner;
+
+    public static void main(String[] args) {
+        //GUI
+        SwingUtilities.invokeLater(() -> {
+            new AppointmentBookingGUI().initializeGUI();
+        });
+    }
+
+    private void initializeGUI() {
+        appointments = new ArrayList<>();
+
+        mainFrame = new JFrame("Hospital Appointment Booking System");
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setSize(900, 700);
+        mainFrame.setLocationRelativeTo(null);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Create form
+        JPanel formPanel = createBookingForm();
+        mainPanel.add(formPanel, BorderLayout.NORTH);
+
+        // Create table
+        JScrollPane tableScrollPane = createAppointmentsTable();
+        mainPanel.add(tableScrollPane, BorderLayout.CENTER);
+
+        mainFrame.add(mainPanel);
+        mainFrame.setVisible(true);
+    }
+
+    private JPanel createBookingForm() {
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 2),
+                "Book New Appointment",
+                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                new Font("Arial", Font.BOLD, 14)
+        ));
+        formPanel.setBackground(new Color(240, 240, 240));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+
+        patientNameField = new JTextField(20);
+        professionalNameField = new JTextField(20);
+        String[] professionalTypes = {"Select Type", "Doctor", "Nurse", "Caregiver", "Physiotherapist", "Specialist"};
+        professionalTypeCombo = new JComboBox<>(professionalTypes);
+        dateField = new JTextField(20);
+        timeField = new JTextField(20);
+        reasonField = new JTextField(20);
+        durationSpinner = new JSpinner(new SpinnerNumberModel(30, 15, 240, 15));
+
+        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        formPanel.add(createLabel("Patient Name:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        formPanel.add(patientNameField, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        formPanel.add(createLabel("Professional Name:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        formPanel.add(professionalNameField, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        formPanel.add(createLabel("Professional Type:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        formPanel.add(professionalTypeCombo, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        formPanel.add(createLabel("Date (YYYY-MM-DD):"), gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        formPanel.add(dateField, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        formPanel.add(createLabel("Time (HH:MM):"), gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        formPanel.add(timeField, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        formPanel.add(createLabel("Duration (minutes):"), gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        formPanel.add(durationSpinner, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        formPanel.add(createLabel("Reason:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        formPanel.add(reasonField, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = 7;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        JButton bookButton = createButton("Book Appointment");
+        JButton clearButton = createButton("Clear Form");
+
+        bookButton.addActionListener(new BookAppointmentListener());
+        clearButton.addActionListener(new ClearFormListener());
+
+        buttonPanel.add(bookButton);
+        buttonPanel.add(clearButton);
+        formPanel.add(buttonPanel, gbc);
+
+        return formPanel;
+    }
+
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.BOLD, 12));
+        return label;
+    }
+
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 12));
+        button.setForeground(new Color(0, 100, 200)); // Blue text
+        button.setBackground(Color.WHITE); // White background
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(0, 100, 200), 2), // Blue border
+                BorderFactory.createEmptyBorder(8, 16, 8, 16)
+        ));
+        button.setPreferredSize(new Dimension(150, 40));
+        
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(230, 240, 255)); // Light blue background on hover
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(Color.WHITE); // Back to white background
+            }
+        });
+
+        return button;
+    }
+
+    private JScrollPane createAppointmentsTable() {
+        String[] columnNames = {"Patient Name", "Professional", "Type", "Appointment Time", "Duration", "Reason"};
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable appointmentsTable = new JTable(tableModel);
+        appointmentsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        appointmentsTable.setRowHeight(25);
+        appointmentsTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
+        appointmentsTable.setFont(new Font("Arial", Font.PLAIN, 11));
+
+        // Set column widths
+        appointmentsTable.getColumnModel().getColumn(0).setPreferredWidth(120);
+        appointmentsTable.getColumnModel().getColumn(1).setPreferredWidth(120);
+        appointmentsTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+        appointmentsTable.getColumnModel().getColumn(3).setPreferredWidth(150);
+        appointmentsTable.getColumnModel().getColumn(4).setPreferredWidth(80);
+        appointmentsTable.getColumnModel().getColumn(5).setPreferredWidth(200);
+
+        JScrollPane tableScrollPane = new JScrollPane(appointmentsTable);
+        tableScrollPane.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 2),
+                "Scheduled Appointments",
+                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                new Font("Arial", Font.BOLD, 14)
+        ));
+        tableScrollPane.setPreferredSize(new Dimension(800, 300));
+
+        return tableScrollPane;
+    }
+
+    private class BookAppointmentListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                // Get values from form
+                String patientName = patientNameField.getText().trim();
+                String professionalName = professionalNameField.getText().trim();
+                String professionalType = (String) professionalTypeCombo.getSelectedItem();
+                String date = dateField.getText().trim();
+                String time = timeField.getText().trim();
+                String reason = reasonField.getText().trim();
+                int duration = (Integer) durationSpinner.getValue();
+                
+                if (patientName.isEmpty() || professionalName.isEmpty() || reason.isEmpty() ||
+                        date.isEmpty() || time.isEmpty()) {
+                    JOptionPane.showMessageDialog(mainFrame,
+                            "Please fill in all required fields.",
+                            "Validation Error",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                if ("Select Type".equals(professionalType)) {
+                    JOptionPane.showMessageDialog(mainFrame,
+                            "Please select a professional type.",
+                            "Validation Error",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                //date and time
+                LocalDateTime appointmentTime = LocalDateTime.parse(date + "T" + time);
+
+                // Create appointment
+                Appointment appointment = new Appointment(
+                        patientName, professionalName, professionalType,
+                        appointmentTime, reason, duration
+                );
+                
+                appointments.add(appointment);
+                tableModel.addRow(appointment.toTableRow());
+                
+                JOptionPane.showMessageDialog(mainFrame,
+                        "Appointment booked successfully!\n\n" +
+                                "Patient: " + patientName + "\n" +
+                                "With: " + professionalName + " (" + professionalType + ")\n" +
+                                "Time: " + appointmentTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' hh:mm a")) + "\n" +
+                                "Duration: " + duration + " minutes\n" +
+                                "Reason: " + reason,
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                
+                clearForm();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(mainFrame,
+                        "Error: Invalid date or time format.\n\n" +
+                                "Please use:\n" +
+                                "• Date: YYYY-MM-DD (e.g., 2024-01-15)\n" +
+                                "• Time: HH:MM (e.g., 14:30 for 2:30 PM)",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private class ClearFormListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            clearForm();
+        }
+    }
+
+    private void clearForm() {
+        patientNameField.setText("");
+        professionalNameField.setText("");
+        professionalTypeCombo.setSelectedIndex(0);
+        dateField.setText("");
+        timeField.setText("");
+        reasonField.setText("");
+        durationSpinner.setValue(30);
+        patientNameField.requestFocus();
+    }
+}
