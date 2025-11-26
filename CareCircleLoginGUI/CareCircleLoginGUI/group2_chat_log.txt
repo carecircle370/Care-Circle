@@ -1,0 +1,2 @@
+[SERVER] doctor has joined the group.
+[2025-11-24 21:50:34] doctor: doctor: test hey

@@ -1,0 +1,8 @@
+[SERVER] caregiver has joined the group.
+[SERVER] doctor has joined the group.
+[SERVER] doctor has joined the group.
+[2025-11-24 22:08:13] doctor: doctor: hey
+[2025-11-24 22:08:13] doctor: doctor: hey
+[2025-11-24 22:08:18] caregiver: caregiver: yo
+[2025-11-24 22:08:18] caregiver: caregiver: yo
+[SERVER] caregiver has left the group.

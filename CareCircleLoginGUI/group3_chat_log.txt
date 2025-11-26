@@ -1,0 +1,8 @@
+[2025-11-25 16:05:42] patient has joined the group.
+[2025-11-25 16:05:47] doctor has joined the group.
+[2025-11-25 16:05:47] doctor has joined the group.
+[2025-11-25 16:05:51] patient: awdawd
+[2025-11-25 16:05:51] patient: awdawd
+[2025-11-25 16:05:53] doctor: sefesfesf
+[2025-11-25 16:05:53] doctor: sefesfesf
+[2025-11-25 16:06:16] patient has left the group.
